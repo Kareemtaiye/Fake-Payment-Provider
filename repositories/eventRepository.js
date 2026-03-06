@@ -5,7 +5,7 @@ export default class EventRepository {
     const query = `
         INSERT INTO events (payment_id, event_type, payload)
         VALUES ($1, $2, $3)
-        RETURNING
+        RETURNING reference, amount, status, currency
         `;
 
     const { rows } = await db.query(query, [paymentId, eventType, payload]);

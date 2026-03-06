@@ -18,7 +18,7 @@ export default class MerchantRepository {
     WHERE api_key = $1
     `;
 
-    const { rows } = await db.query(query, apiKey);
+    const { rows } = await db.query(query, [apiKey]);
     return rows[0] || null;
   }
 

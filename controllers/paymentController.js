@@ -7,12 +7,13 @@ import PaymentService from "../services/paymentService.js";
 
 export default class PaymentController {
   static async initiatePaymentTransaction(req, res, next) {
-    const idempotencyKey = req.headers("Idempotency-Key");
+    const idempotencyKey = req.headers["idempotency-key"];
+
     if (!idempotencyKey) {
       return next(new AppError("Missing Idempotency-Key header.", 400));
     }
 
-    const { amount, currency, metadata } = req.body || {};
+    const { amount, currency, metadata = {} } = req.body || {};
 
     if (!req.body || Object.keys(req.body).length === 0) {
       return next(new AppError("Request body is required", 400));
@@ -20,7 +21,10 @@ export default class PaymentController {
 
     if (!amount || !currency) {
       return next(
-        new AppError("Missing amount, currency, and optional 'metadata' field", 400),
+        new AppError(
+          "Missing one or all of amount, currency, and optional 'metadata' field",
+          400,
+        ),
       );
     }
 
@@ -37,7 +41,7 @@ export default class PaymentController {
       //Check if it is the same payload.
       const hashedPayload = crypto
         .createHash("sha256")
-        .update(JSON.stringify({ amount, currency, metadata }))
+        .update(JSON.stringify({ amount, currency }))
         .digest("hex");
 
       //Confilct
@@ -45,7 +49,7 @@ export default class PaymentController {
         return next(new AppError("Idempotency key used with different payload.", 409));
       }
 
-      const { reference, amount, currency, status, id } =
+      const { reference, amount, currency, status } =
         await PaymentRepository.getPaymentByReference(record.payment_reference);
 
       //Wait up. Can only send auth url when the payment was pending(i.e payment was just initialize but hasnt been processed)
@@ -68,6 +72,23 @@ export default class PaymentController {
 
     //If idempotency key doesn't exist, we insert a new row.
     //But first, race condition check. check the query for inserting idempotency(for possible future collab)
-    const newPaymentRow = await PaymentService.createPayment();
+
+    const requestHash = crypto
+      .createHash("sha256")
+      .update(JSON.stringify({ amount, currency }))
+      .digest("hex");
+
+    const newPayment = await PaymentService.createPayment({
+      merchantId: req.merchant.id,
+      amount,
+      metadata: JSON.stringify(metadata),
+      key: idempotencyKey,
+      requestHash,
+    });
+
+    res.status(201).json({
+      status: "success",
+      data: newPayment,
+    });
   }
 }

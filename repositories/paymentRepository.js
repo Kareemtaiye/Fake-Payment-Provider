@@ -6,10 +6,10 @@ export default class PaymentRepository {
     db = pool,
   ) {
     const query = `
-    INSERT INTO transactions 
+    INSERT INTO payments 
     (merchant_id, reference, amount, metadata, method)
     VALUES ($1, $2, $3, $4, $5)
-    RETURNING status, reference
+    RETURNING reference, amount, currency, status
     `;
 
     const { rows } = await db.query(query, [
