@@ -6,13 +6,13 @@ A **self-contained, event-driven payment processor** that simulates real-world p
 
 ## Features
 
-* **Merchant Management**: Unique API keys, webhook URLs, and authentication.
-* **Payment Lifecycle**: Initialize, track, and process payments with statuses (`PENDING`, `SUCCESS`, `FAILED`).
-* **Event-Driven Architecture**: Background workers handle payment events asynchronously for reliability.
-* **Webhook Simulation**: Send payment events to merchants, supporting retries and idempotency.
-* **Idempotency Protection**: Prevent duplicate payments from repeated API requests.
-* **Extensible Metadata**: Store additional payment information as JSONB.
-* **Simulated Checkout**: Generate payment URLs for testing customer flows.
+- **Merchant Management**: Unique API keys, webhook URLs, and authentication.
+- **Payment Lifecycle**: Initialize, track, and process payments with statuses (`PENDING`, `SUCCESS`, `FAILED`).
+- **Event-Driven Architecture**: Background workers handle payment events asynchronously for reliability.
+- **Webhook Simulation**: Send payment events to merchants, supporting retries and idempotency.
+- **Idempotency Protection**: Prevent duplicate payments from repeated API requests.
+- **Extensible Metadata**: Store additional payment information as JSONB.
+- **Simulated Checkout**: Generate payment URLs for testing customer flows.
 
 ---
 
@@ -42,8 +42,7 @@ Webhook Delivery / Ledger Integration
 
 ## Why This Project Is Valuable
 
-* Simulates **real production payment processors**.
-* Teaches **event-driven architecture, reliability, and async processing**.
-* Perfect for backend engineers to **learn fintech patterns without real bank integration**.
-* Easily extended to **simulate banks, multiple providers, refunds, and transfers**.
-
+- Simulates **real production payment processors**.
+- Teaches **event-driven architecture, reliability, and async processing**.
+- Perfect for backend engineers to **learn fintech patterns without real bank integration**.
+- Easily extended to **simulate banks, multiple providers, refunds, and transfers**.
