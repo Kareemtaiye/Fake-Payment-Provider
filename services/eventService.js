@@ -1,8 +1,11 @@
 import EventRepository from "../repositories/eventRepository.js";
 
 export default class EventService {
-  static async createEvent({ paymentId, eventType, payload }, client) {
-    return await EventRepository.createEvent({ paymentId, eventType, payload }, client);
+  static async createEvent({ paymentId, merchantId, eventType, payload }, client) {
+    return await EventRepository.createEvent(
+      { paymentId, merchantId, eventType, payload },
+      client,
+    );
   }
 
   static async getEventByPaymentId(paymentId, client) {

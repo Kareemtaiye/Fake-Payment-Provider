@@ -9,13 +9,15 @@ export default class ApiKeyAuth {
       apiKey = req.headers.authorization.split(" ")[1];
     }
 
+    console.log(apiKey);
+
     if (!apiKey) {
       return next(new AppError("Missing api key in the authorization header.", 401));
     }
 
     const merchant = await MerchantService.getMerchantByApiKey(apiKey);
 
-    if (!apiKey) {
+    if (!merchant) {
       return next(new AppError("Invalid Api Key", 401));
     }
 

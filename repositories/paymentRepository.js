@@ -6,10 +6,10 @@ export default class PaymentRepository {
     db = pool,
   ) {
     const query = `
-    INSERT INTO transactions 
+    INSERT INTO payments 
     (merchant_id, reference, amount, metadata, method)
     VALUES ($1, $2, $3, $4, $5)
-    RETURNING status, reference
+    RETURNING id, reference, amount, currency, status
     `;
 
     const { rows } = await db.query(query, [
@@ -40,6 +40,20 @@ export default class PaymentRepository {
     `;
 
     const { rows } = await db.query(query, [reference]);
+    return rows[0] || null;
+  }
+
+  static async updatePaymentStatus({ reference, status }, db = pool) {
+    const query = `
+    UPDATE payments 
+    SET status = $1, updated_at = now()
+    WHERE reference = $2
+    RETURNING id, reference, amount, currency, status
+    `;
+
+    const { rows } = await db.query(query, [status, reference]);
+
+    console.log(rows);
     return rows[0] || null;
   }
 }
