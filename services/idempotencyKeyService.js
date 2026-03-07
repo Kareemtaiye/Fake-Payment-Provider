@@ -9,7 +9,7 @@ export default class IdempotencyKeyService {
     { merchantId, key, paymentId, requestHash },
     client,
   ) {
-    return await IdempotencyKeyRepository.getIdempotencyKey(
+    return await IdempotencyKeyRepository.createIdempotencyEntry(
       { merchantId, key, paymentId, requestHash },
       client,
     );

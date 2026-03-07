@@ -19,24 +19,63 @@ export default class PaymentService {
     try {
       await client.query("BEGIN");
 
-      const payment = await PaymentRepository.createPayment(
+      const { id: paymentId, ...paymentData } = await PaymentRepository.createPayment(
         { merchantId, reference, amount, metadata, method },
         client,
       );
 
       await EventService.createEvent(
-        { paymentId: payment.id, eventType: "payment.initialized", payload: payment },
+        { paymentId: paymentId, eventType: "payment.initialized", payload: paymentData },
         client,
       );
 
       await IdempotencyKeyService.createIdempotencyEntry(
-        { merchantId, paymentId: payment.id, key, requestHash },
+        { merchantId, paymentId: paymentId, key, requestHash },
         client,
       );
 
       await client.query("COMMIT");
 
-      return payment;
+      return paymentData;
+    } catch (err) {
+      await client.query("ROLLBACK");
+      throw err;
+    } finally {
+      await client.release();
+    }
+  }
+
+  static async updatePaymentStatus({ reference, status }) {
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const payment = await PaymentRepository.updatePaymentStatus(
+        { reference, status },
+        client,
+      ); //Don't send id to client
+
+      console.log(payment);
+
+      if (!payment) {
+        return null;
+      }
+
+      const { id, ...paymentData } = payment;
+
+      await EventService.createEvent(
+        {
+          paymentId: paymentData.id,
+          eventType: status === "SUCCESS" ? "payment.success" : "payment.failed", //for now
+          payload: paymentData,
+        },
+        client,
+      );
+
+      await client.query("COMMIT");
+
+      return paymentData;
     } catch (err) {
       await client.query("ROLLBACK");
       throw err;

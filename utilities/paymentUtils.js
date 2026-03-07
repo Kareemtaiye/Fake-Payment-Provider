@@ -13,6 +13,6 @@ export default class PaymentUtils {
     const millisec = d.getMilliseconds();
 
     const formattedDate = `${year}${month}${day}${millisec}`;
-    return `"PAY_${formattedDate}_${crypto.randomBytes(6).toString("hex").toUpperCase()}`;
+    return `PAY_${formattedDate}_${crypto.randomBytes(6).toString("hex").toUpperCase()}`;
   }
 }

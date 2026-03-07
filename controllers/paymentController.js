@@ -4,6 +4,7 @@ import AppError from "../utilities/AppError.js";
 import PaymentRepository from "../repositories/paymentRepository.js";
 import PaymentUtils from "../utilities/paymentUtils.js";
 import PaymentService from "../services/paymentService.js";
+import { urlencoded } from "express";
 
 export default class PaymentController {
   static async initiatePaymentTransaction(req, res, next) {
@@ -12,8 +13,7 @@ export default class PaymentController {
     if (!idempotencyKey) {
       return next(new AppError("Missing Idempotency-Key header.", 400));
     }
-
-    const { amount, currency, metadata = {} } = req.body || {};
+    const { amount, currency, metadata } = req.body || {};
 
     if (!req.body || Object.keys(req.body).length === 0) {
       return next(new AppError("Request body is required", 400));
@@ -49,8 +49,7 @@ export default class PaymentController {
         return next(new AppError("Idempotency key used with different payload.", 409));
       }
 
-      const { reference, amount, currency, status } =
-        await PaymentRepository.getPaymentByReference(record.payment_reference);
+      const payment = await PaymentRepository.getPaymentById(record.payment_id);
 
       //Wait up. Can only send auth url when the payment was pending(i.e payment was just initialize but hasnt been processed)
 
@@ -58,13 +57,13 @@ export default class PaymentController {
       return res.status(200).json({
         status: "success",
         data: {
-          reference,
-          amount,
-          currency,
-          status,
+          reference: payment.reference,
+          amount: payment.amount,
+          currency: payment.currency,
+          status: payment.status,
           authorization_url:
-            status === "PENDING"
-              ? PaymentUtils.generateAuthorizationUrl(reference)
+            payment.status === "PENDING"
+              ? PaymentUtils.generateAuthorizationUrl(payment.reference)
               : undefined, // no need to resend if worker has updated it to some other status
         },
       });
@@ -88,7 +87,89 @@ export default class PaymentController {
 
     res.status(201).json({
       status: "success",
-      data: newPayment,
+      data: {
+        ...newPayment,
+        authorization_url: PaymentUtils.generateAuthorizationUrl(newPayment.reference),
+      },
+    });
+  }
+
+  static async loadPaymentPage(req, res, next) {
+    const ref = req.params.reference;
+
+    if (!ref) {
+      return next(new AppError("Missing reference parameter.", 400));
+    }
+
+    const payment = await PaymentService.getPaymentByReference(ref);
+
+    if (!payment) {
+      return next(new AppError("Payment not found for reference.", 404));
+    }
+
+    //Check if payment has not been already processed
+    if (payment.status !== "PENDING") {
+      return next(new AppError("Payment already processed", 400));
+    }
+
+    //Go ahead and pay
+    res.status(200).json({
+      status: "success",
+      data: {
+        reference: payment.reference,
+        amount: payment.amount,
+        currency: payment.currency,
+        message: "Please select payment method",
+        metadata: payment.metadata,
+      },
+    });
+    //LATER WHEN WE BUILD FRONTEND, THIS ENDPOINT WILL RETURN HTML INSTEAD OF JSON
+  }
+
+  static async processPayment(req, res, next) {
+    const ref = req.params.reference;
+
+    if (!ref) {
+      return next(new AppError("Missing reference parameter.", 400));
+    }
+
+    const payment = await PaymentService.getPaymentByReference(ref);
+
+    if (!payment) {
+      return next(new AppError("Payment not found for reference.", 404));
+    }
+
+    //Check if payment has not been already processed
+    if (payment.status !== "PENDING") {
+      return next(new AppError("Payment already processed", 400));
+    }
+
+    //Simulate success or failure, for now
+    const randomNum = Math.random();
+    const success = randomNum > 0.9;
+
+    console.log(randomNum);
+
+    const newStatus = success ? "SUCCESS" : "FAILED";
+
+    const updatedPayment = await PaymentService.updatePaymentStatus({
+      reference: ref,
+      status: newStatus,
+    });
+
+    if (!updatedPayment) {
+      return next(
+        new AppError("Failed to update payment status. Please try again later", 500),
+      );
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Payment processed",
+      data: {
+        reference: updatedPayment.reference,
+        status: updatedPayment.status,
+      },
     });
   }
 }

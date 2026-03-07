@@ -8,8 +8,8 @@ export default class IdempotencyKeyRepository {
     const query = `
     INSERT INTO idempotency_keys
     (merchant_id, payment_id, key, request_hash)
-    VALUES ($1, $2, $3, $4, $5)
-     ON CONFLICT (idempotency_key, merchant_id) DO NOTHING
+    VALUES ($1, $2, $3, $4)
+     ON CONFLICT (key, merchant_id) DO NOTHING
     RETURNING *; 
     `;
 
