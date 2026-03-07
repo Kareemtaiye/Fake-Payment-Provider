@@ -32,6 +32,7 @@ CREATE TABLE payments (
 CREATE TABLE events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     payment_id UUID REFERENCES payments(id),
+    merchant_id UUID REFERENCES merchants(id),
     event_type VARCHAR(50) NOT NULL, -- e.g., charge.success, charge.failed
     payload JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
@@ -42,6 +43,7 @@ CREATE TABLE webhook_deliveries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     payment_id UUID REFERENCES payments(id),
     merchant_id UUID REFERENCES merchants(id),
+    event_id UUID REFERENCES events(id),
     attempt_number INT DEFAULT 1,
     response_status INT,
     delivered_at TIMESTAMP,

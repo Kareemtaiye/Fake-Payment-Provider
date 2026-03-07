@@ -146,7 +146,7 @@ export default class PaymentController {
 
     //Simulate success or failure, for now
     const randomNum = Math.random();
-    const success = randomNum > 0.9;
+    const success = randomNum > 0.2;
 
     console.log(randomNum);
 

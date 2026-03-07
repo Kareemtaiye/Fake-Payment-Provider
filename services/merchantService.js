@@ -20,6 +20,6 @@ export default class MerchantService {
   }
 
   static async getMerchantId(merchantId, client) {
-    return await MerchantRepository.getMerchantById(apiKey, client);
+    return await MerchantRepository.getMerchantById(merchantId, client);
   }
 }

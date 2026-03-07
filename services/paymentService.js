@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import webhookQueue from "../queues/webhookQueue.js";
 import PaymentRepository from "../repositories/paymentRepository.js";
 import PaymentUtils from "../utilities/paymentUtils.js";
 import EventService from "./eventService.js";
@@ -24,8 +25,8 @@ export default class PaymentService {
         client,
       );
 
-      await EventService.createEvent(
-        { paymentId: paymentId, eventType: "payment.initialized", payload: paymentData },
+      const event = await EventService.createEvent(
+        { paymentId, merchantId, eventType: "payment.initialized", payload: paymentData },
         client,
       );
 
@@ -33,6 +34,10 @@ export default class PaymentService {
         { merchantId, paymentId: paymentId, key, requestHash },
         client,
       );
+
+      await webhookQueue.add("send-webhook", {
+        eventId: event.id,
+      });
 
       await client.query("COMMIT");
 

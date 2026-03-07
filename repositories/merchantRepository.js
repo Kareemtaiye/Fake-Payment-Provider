@@ -28,7 +28,7 @@ export default class MerchantRepository {
     WHERE id = $1
     `;
 
-    const { rows } = await db.query(query, merchantId);
+    const { rows } = await db.query(query, [merchantId]);
     return rows[0] || null;
   }
 }
