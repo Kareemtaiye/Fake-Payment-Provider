@@ -47,7 +47,6 @@ CREATE TABLE webhook_deliveries (
     attempt_number INT DEFAULT 1,
     response_status INT,
     delivered_at TIMESTAMP,
-    next_retry_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW()
 );
 

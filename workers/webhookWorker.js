@@ -6,7 +6,7 @@ const worker = new Worker(
   "webhook-delivery",
   async job => {
     const { eventId } = job.data;
-    await WebhookDeliveryService.sendWebhook(eventId);
+    await WebhookDeliveryService.sendWebhook(eventId, job);
   },
   { connection },
 );

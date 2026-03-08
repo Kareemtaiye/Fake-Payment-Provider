@@ -35,9 +35,14 @@ export default class PaymentService {
         client,
       );
 
-      await webhookQueue.add("send-webhook", {
-        eventId: event.id,
-      });
+      await webhookQueue.add(
+        "send-webhook",
+        { eventId: event.id },
+        {
+          attempts: 5,
+          backoff: { type: "exponential", delay: 10000 },
+        },
+      );
 
       await client.query("COMMIT");
 
