@@ -34,6 +34,7 @@ CREATE TABLE events (
     payment_id UUID REFERENCES payments(id),
     merchant_id UUID REFERENCES merchants(id),
     event_type VARCHAR(50) NOT NULL, -- e.g., charge.success, charge.failed
+    processed boolean default false
     payload JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -60,3 +61,7 @@ CREATE TABLE idempotency_keys (
     created_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(key, merchant_id)
 );
+
+--Tables for later 
+-- ledger entry
+-- For financial reconciliation once i add transfers and refunds features.
