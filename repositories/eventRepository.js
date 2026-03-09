@@ -31,4 +31,13 @@ export default class EventRepository {
     const { rows } = await db.query(query, [paymentId]);
     return rows[0] || null;
   }
+
+  static async markEventAsProcessed(eventId, db = pool) {
+    const query = `
+    UPDATE events SET processed = TRUE 
+    WHERE id = $1
+    `;
+
+    await db.query(query, [eventId]);
+  }
 }
