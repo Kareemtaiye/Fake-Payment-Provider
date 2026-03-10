@@ -2,19 +2,20 @@ import pool from "../config/db.js";
 
 export default class PaymentRepository {
   static async createPayment(
-    { merchantId, reference, amount, metadata, method },
+    { merchantId, reference, merchantRef, amount, metadata, method },
     db = pool,
   ) {
     const query = `
     INSERT INTO payments 
-    (merchant_id, reference, amount, metadata, method)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING id, reference, amount, currency, status
+    (merchant_id, reference, merchant_reference, amount, metadata, method)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, reference, merchant_reference, amount, currency, status
     `;
 
     const { rows } = await db.query(query, [
       merchantId,
       reference,
+      merchantRef,
       amount,
       metadata,
       method,

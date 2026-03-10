@@ -43,17 +43,8 @@ export default class WebhookDeliveryService {
       }),
     });
 
-    console.log("Reponse from event webhook: ", response);
-    console.log("Reponse from event webhook: ", response.ok);
-
-    //trigger retires
-    // if (!response.ok) {
-    //   throw new Error("Webhook delivery failed");
-    // }
-
-    // const response = {
-    //   ok: true,
-    // };
+    const responseData = await response.json().catch(() => null); // some endpoints return no body;
+    console.log("Response from event webhook: ", responseData);
 
     //Create an entry for the webhook
     await WebhookDeliveryRepository.createWebhookDelivery({
@@ -66,6 +57,9 @@ export default class WebhookDeliveryService {
     });
 
     //After successful delivery, we should mark the event as delivered(processed)
-    await EventService.markEventAsProcessed(event.id);
+    // Only mark as processed if delivery succeeded
+    if (response.ok) {
+      await EventService.markEventAsProcessed(event.id);
+    }
   }
 }

@@ -8,6 +8,7 @@ import IdempotencyKeyService from "./idempotencyKeyService.js";
 export default class PaymentService {
   static async createPayment({
     merchantId,
+    merchantRef,
     amount,
     metadata,
     method = "CARD",
@@ -21,7 +22,7 @@ export default class PaymentService {
       await client.query("BEGIN");
 
       const { id: paymentId, ...paymentData } = await PaymentRepository.createPayment(
-        { merchantId, reference, amount, metadata, method },
+        { merchantId, reference, amount, metadata, method, merchantRef },
         client,
       );
 

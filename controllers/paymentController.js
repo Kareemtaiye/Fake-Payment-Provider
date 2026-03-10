@@ -13,7 +13,7 @@ export default class PaymentController {
     if (!idempotencyKey) {
       return next(new AppError("Missing Idempotency-Key header.", 400));
     }
-    const { amount, currency, metadata } = req.body || {};
+    const { amount, currency, metadata, merchant_ref } = req.body || {};
 
     if (!req.body || Object.keys(req.body).length === 0) {
       return next(new AppError("Request body is required", 400));
@@ -22,7 +22,7 @@ export default class PaymentController {
     if (!amount || !currency) {
       return next(
         new AppError(
-          "Missing one or all of amount, currency, and optional 'metadata' field",
+          "Missing one or all of amount, currency, and optional ['metadata', 'merchant_ref'] field(s)",
           400,
         ),
       );
@@ -58,6 +58,7 @@ export default class PaymentController {
         status: "success",
         data: {
           reference: payment.reference,
+          merchant_reference: payment.merchant_ref,
           amount: payment.amount,
           currency: payment.currency,
           status: payment.status,
@@ -79,6 +80,7 @@ export default class PaymentController {
 
     const newPayment = await PaymentService.createPayment({
       merchantId: req.merchant.id,
+      merchantRef: merchant_ref,
       amount,
       metadata: JSON.stringify(metadata),
       key: idempotencyKey,

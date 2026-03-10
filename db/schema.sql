@@ -18,6 +18,7 @@ CREATE TABLE merchants (
 CREATE TABLE payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     merchant_id UUID REFERENCES merchants(id),
+    merchant_reference TEXT,
     reference VARCHAR(255) UNIQUE NOT NULL,
     method payment_method,
     amount BIGINT NOT NULL,
