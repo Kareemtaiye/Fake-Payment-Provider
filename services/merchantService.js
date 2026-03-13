@@ -1,11 +1,11 @@
 import MerchantRepository from "../repositories/merchantRepository.js";
 import { generateApiKey } from "../utilities/generateKey.js";
-import signWebhookSecret from "../utilities/signWebhook.js";
+import WebhookUtils from "../utilities/webhookUtils.js";
 
 export default class MerchantService {
   static async registerMerchant({ name, webhookUrl }) {
     const apiKey = generateApiKey();
-    const webhookSecret = signWebhookSecret();
+    const webhookSecret = WebhookUtils.generateWebhookSecret();
 
     return await MerchantRepository.registerMerchant({
       name,
@@ -20,6 +20,6 @@ export default class MerchantService {
   }
 
   static async getMerchantId(merchantId, client) {
-    return await MerchantRepository.getMerchantById(apiKey, client);
+    return await MerchantRepository.getMerchantById(merchantId, client);
   }
 }

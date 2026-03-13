@@ -3,6 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 
 import merchantRouter from "./routes/merchantRoutes.js";
+import paymentRouter from "./routes/paymentRoutes.js";
 import globalErrHandler from "./middlewares/globalErrHandler.js";
 import unhandledRoutes from "./middlewares/unhandledRoutes.js";
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api/v1/merchant", merchantRouter);
+app.use("/api/v1/payment", paymentRouter);
 
 app.use(unhandledRoutes);
 app.use(globalErrHandler);
