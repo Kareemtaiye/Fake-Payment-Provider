@@ -9,8 +9,6 @@ export default class ApiKeyAuth {
       apiKey = req.headers.authorization.split(" ")[1];
     }
 
-    console.log(apiKey);
-
     if (!apiKey) {
       return next(new AppError("Missing api key in the authorization header.", 401));
     }

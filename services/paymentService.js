@@ -56,7 +56,7 @@ export default class PaymentService {
     }
   }
 
-  static async updatePaymentStatus({ reference, status }) {
+  static async processPayment({ reference, status, merchantId }) {
     const client = await pool.connect();
 
     try {
@@ -68,6 +68,54 @@ export default class PaymentService {
       ); //Don't send id to client
 
       console.log(payment);
+
+      if (!payment) {
+        return null;
+      }
+
+      const { id, ...paymentData } = payment;
+
+      const event = await EventService.createEvent(
+        {
+          paymentId: paymentData.id,
+          eventType: status === "SUCCESS" ? "payment.success" : "payment.failed", //for now
+          payload: paymentData,
+          merchantId: merchantId,
+        },
+        client,
+      );
+
+      console.log(event, "Event created");
+
+      await webhookQueue.add(
+        "send-webhook",
+        { eventId: event.id },
+        {
+          attempts: 5,
+          backoff: { type: "exponential", delay: 10000 },
+        },
+      );
+
+      await client.query("COMMIT");
+
+      return paymentData;
+    } catch (err) {
+      await client.query("ROLLBACK");
+      throw err;
+    } finally {
+      await client.release();
+    }
+  }
+  static async updatePaymentStatus({ reference, status }) {
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const payment = await PaymentRepository.updatePaymentStatus(
+        { reference, status },
+        client,
+      ); //Don't send id to client
 
       if (!payment) {
         return null;
