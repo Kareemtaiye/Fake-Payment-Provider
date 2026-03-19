@@ -49,12 +49,11 @@ export default class PaymentRepository {
     UPDATE payments 
     SET status = $1, updated_at = now()
     WHERE reference = $2
-    RETURNING id, reference, amount, currency, status
+    RETURNING id, reference, merchant_reference, amount, currency, status
     `;
 
     const { rows } = await db.query(query, [status, reference]);
 
-    console.log(rows);
     return rows[0] || null;
   }
 }

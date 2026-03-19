@@ -154,14 +154,15 @@ export default class PaymentController {
 
     const newStatus = success ? "SUCCESS" : "FAILED";
 
-    const updatedPayment = await PaymentService.updatePaymentStatus({
+    const processedPayment = await PaymentService.processPayment({
       reference: ref,
       status: newStatus,
+      merchantId: req.merchant.id,
     });
 
-    if (!updatedPayment) {
+    if (!processedPayment) {
       return next(
-        new AppError("Failed to update payment status. Please try again later", 500),
+        new AppError("Failed to process payment status. Please try again later", 500),
       );
     }
 
@@ -169,8 +170,11 @@ export default class PaymentController {
       status: "success",
       message: "Payment processed",
       data: {
-        reference: updatedPayment.reference,
-        status: updatedPayment.status,
+        reference: processedPayment.reference,
+        status: processedPayment.status,
+        merchant_reference: processedPayment.merchant_reference,
+        amount: processedPayment.amount,
+        currency: processedPayment.currency,
       },
     });
   }

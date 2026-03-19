@@ -20,6 +20,7 @@ export default class WebhookDeliveryService {
     }
 
     const payload = JSON.stringify({
+      id: event.id,
       event: event.event_type,
       data: event.payload,
     });
@@ -38,6 +39,7 @@ export default class WebhookDeliveryService {
         "x-provider-signature": signature,
       },
       body: JSON.stringify({
+        id: event.id,
         event: event.event_type,
         data: event.payload,
       }),
@@ -51,7 +53,7 @@ export default class WebhookDeliveryService {
       paymentId: event.payment_id,
       merchantId: merchant.id,
       eventId: event.id,
-      // responseStatus: response?.status,
+      responseStatus: response?.status,
       attemptNumber: job.attemptsMade + 1,
       deliveredAt: response.ok ? new Date(Date.now()) : null,
     });
