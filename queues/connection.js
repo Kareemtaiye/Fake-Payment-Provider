@@ -2,8 +2,8 @@ import IOredis from "ioredis";
 
 const connection = new IOredis(
   {
-    host: "127.0.0.1",
-    port: 6379,
+    host: process.env.REDIS_HOST || "localhost",
+    port: process.env.REDIS_PORT || 6380,
   },
   { maxRetriesPerRequest: null },
 );

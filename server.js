@@ -4,10 +4,10 @@ config();
 import app from "./app.js";
 import pool from "./config/db.js";
 
-const { PORT, NODE_ENV } = process.env;
+const { PORT, DOCKER_PORT, NODE_ENV } = process.env;
 
-const server = app.listen(PORT, () => {
-  console.log(`Fake PP server running ${NODE_ENV} on port: ${PORT}`);
+const server = app.listen(DOCKER_PORT, () => {
+  console.log(`Fake PP server running ${NODE_ENV} on port: ${DOCKER_PORT}`);
 });
 
 // process.on("SIGINT")
