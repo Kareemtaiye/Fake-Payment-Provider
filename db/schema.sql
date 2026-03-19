@@ -1,6 +1,6 @@
 -- Enums
 CREATE TYPE payment_method AS ENUM ('CARD', 'BANK_TRANSFER');
-CREATE TYPE payment_status AS ENUM ('PENDING', 'PROCESSING', 'SUCCESS', 'FAILED'. "UNKNOWN");
+CREATE TYPE payment_status AS ENUM ('PENDING', 'PROCESSING', 'SUCCESS', 'FAILED', 'UNKNOWN');
 
 
 -- Tables
@@ -35,7 +35,7 @@ CREATE TABLE events (
     payment_id UUID REFERENCES payments(id),
     merchant_id UUID REFERENCES merchants(id),
     event_type VARCHAR(50) NOT NULL, -- e.g., charge.success, charge.failed
-    processed boolean default false
+    processed boolean default false,
     payload JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
